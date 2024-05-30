@@ -7,9 +7,11 @@ SparseMatrix::SparseMatrix(QObject *parent) : QObject(parent), size(0), predomin
 SparseMatrix::SparseMatrix(const QVector<Position>& positions, const QVector<QVariant>& diagonal, int size, const QVariant& predominant, bool symmetric, QObject *parent)
     : QObject(parent), positions(positions), diagonal(diagonal), size(size), predominant(predominant), symmetric(symmetric) {}
 
-// SparseMatrix* SparseMatrix::copy() const {
-//     return new SparseMatrix(positions, diagonal, size, predominant, symmetric);
-// }
+SparseMatrix::~SparseMatrix()
+{
+    clear();
+}
+
 
 void SparseMatrix::clear() {
     size = 0;
@@ -19,9 +21,6 @@ void SparseMatrix::clear() {
     symmetric = true;
 }
 
-// bool SparseMatrix::matrixFilled() const {
-//     return !diagonal.isEmpty();
-// }
 
 void SparseMatrix::printData() const{
     for (const Position& pos : positions) {
@@ -30,29 +29,23 @@ void SparseMatrix::printData() const{
 }
 
 void SparseMatrix::generate(int size, float sparsity, int randStart, int randEnd, const QVariant& predominant) {
-    clear(); // Clear the matrix before generating new data
+    clear();
 
-    // Calculate the number of non-zero elements based on the given sparsity
     int numbersAmount = qRound((1 - sparsity) * size * size);
 
-    // Calculate the number of elements that should be on the diagonal
     int diagonalNumbersAmount = QRandomGenerator::global()->bounded(qMin(numbersAmount, size) + 1);
 
-    // Calculate the number of elements that are not on the diagonal
     int nonDiagonalNumbersAmount = numbersAmount - diagonalNumbersAmount;
 
-    // Ensure that the number of non-diagonal elements is even
     if (nonDiagonalNumbersAmount % 2 != 0) {
         nonDiagonalNumbersAmount++;
         diagonalNumbersAmount--;
     }
     nonDiagonalNumbersAmount /= 2;
 
-    // Create a vector to store the positions of diagonal elements
     QVector<int> diagonalPositions(size);
     std::iota(diagonalPositions.begin(), diagonalPositions.end(), 0);
 
-    // Shuffle the positions of diagonal elements and resize to the required size
     if (diagonalNumbersAmount > 0) {
         std::shuffle(diagonalPositions.begin(), diagonalPositions.end(), *QRandomGenerator::global());
         diagonalPositions.resize(diagonalNumbersAmount);
@@ -60,31 +53,26 @@ void SparseMatrix::generate(int size, float sparsity, int randStart, int randEnd
         diagonalPositions.clear();
     }
 
-    // Fill the diagonal elements of the matrix with a certain value
     diagonal.fill(predominant, size);
     for (int pos : diagonalPositions) {
         diagonal[pos] = QRandomGenerator::global()->bounded(randStart, randEnd + 1);
     }
 
-    // Create a vector to store the positions of non-diagonal elements
     QVector<QPair<int, int>> nonDiagonalPositions;
     for (int i = 1; i < size; ++i) {
         for (int j = 0; j < i; ++j) {
             nonDiagonalPositions.append(qMakePair(i, j));
         }
     }
-    // Shuffle the positions of non-diagonal elements and resize to the required size
     std::shuffle(nonDiagonalPositions.begin(), nonDiagonalPositions.end(), *QRandomGenerator::global());
     nonDiagonalPositions.resize(nonDiagonalNumbersAmount);
 
-    // Fill the non-diagonal elements of the matrix with random values
     for (const auto& pos : nonDiagonalPositions) {
         QVariant value1 = QRandomGenerator::global()->bounded(randStart, randEnd + 1);
         QVariant value2 = QRandomGenerator::global()->bounded(randStart, randEnd + 1);
         positions.append({value1, value2, pos.first, pos.second});
     }
 
-    // Set the size of the matrix and the predominant value for filling
     this->size = size;
     this->predominant = predominant;
 }
@@ -352,7 +340,6 @@ void SparseMatrix::changeValues(int b) {
     QVector<QVariant> bigger_elements;
     QVector<QPair<int, int>> tempPairs;
 
-    // Combine processing of diagonal and positions elements to avoid copying
     for (int i = 0; i < diagonal.size(); ++i) {
         if (diagonal[i] != predominant) {
             if (diagonal[i].toInt() <= b) {
@@ -383,11 +370,9 @@ void SparseMatrix::changeValues(int b) {
         }
     }
 
-    // Combine and sort elements
     QVector<QVariant> elements = bigger_elements + lesser_elements;
     std::sort(tempPairs.begin(), tempPairs.end());
 
-    // Use a QMap to store the elements for quick lookup and update
     QMap<QPair<int, int>, QVariant> elementMap;
     for (int i = 0; i < elements.size(); ++i) {
         if (i < tempPairs.size()) {
@@ -395,7 +380,6 @@ void SparseMatrix::changeValues(int b) {
         }
     }
 
-    // Update diagonal and positions
     for (int i = 0; i < diagonal.size(); ++i) {
         if (diagonal[i] != predominant && elementMap.contains(QPair<int, int>(i, i))) {
             diagonal[i] = elementMap[QPair<int, int>(i, i)];
