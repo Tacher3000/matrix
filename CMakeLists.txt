@@ -26,6 +26,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/sparsematrix.h src/sparsematrix.cpp
         main.qml
         resource.qrc
+
     )
 else()
     if(ANDROID)
