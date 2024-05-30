@@ -249,93 +249,174 @@ void SparseMatrix::printMatrixToTextEdit(QTextEdit* textEdit, int head, int tail
 }
 
 
+// void SparseMatrix::changeValues(int b) {
+
+//     QElapsedTimer timer;
+//     timer.start();
+//     QVector<Position> all_positions = positions;
+//     for (int i = 0; i < diagonal.size(); ++i) {
+//         if (diagonal[i] != predominant) {
+//             all_positions.append({diagonal[i], diagonal[i], i, i});
+//         }
+//     }
+
+//     QVector<QVariant> lesser_elements;
+//     QVector<QVariant> bigger_elements;
+//     for (const auto& pos : all_positions) {
+//         if (pos.x1 == pos.x2) {
+//             QVariant value = pos.value1;
+//             if (value.toInt() <= b) {
+//                 lesser_elements.append(value);
+//             } else {
+//                 bigger_elements.append(value);
+//             }
+//         } else {
+//             if (pos.value1.toInt() <= b) {
+//                 lesser_elements.append(pos.value1);
+//             } else {
+//                 bigger_elements.append(pos.value1);
+//             }
+//             if (pos.value2.toInt() <= b) {
+//                 lesser_elements.append(pos.value2);
+//             } else {
+//                 bigger_elements.append(pos.value2);
+//             }
+//         }
+//     }
+
+
+
+//     // Объединяем массивы больших и меньших элементов
+//     QVector<QVariant> elements = bigger_elements;
+//     elements.append(lesser_elements);
+
+//     QVector<QPair<int, int>> tempPairs;
+
+//     // Проходим по каждому элементу вектора positions
+//     for (const Position& pos : all_positions) {
+//         if(pos.x1 != pos.x2){
+//             tempPairs.append(QPair<int, int>(pos.x2, pos.x1));
+//             tempPairs.append(QPair<int, int>(pos.x1, pos.x2));
+//         }else
+//             tempPairs.append(QPair<int, int>(pos.x1, pos.x2));
+//     }
+
+//     std::sort(tempPairs.begin(), tempPairs.end());
+
+//     for (const auto& pair : tempPairs) {
+//         int x1 = pair.first;
+//         int x2 = pair.second;
+
+//         for (auto& pos : all_positions) {
+//             if (pos.x1 == x1 && pos.x2 == x2 && x1 == x2) {
+//                 if (!elements.isEmpty()) {
+//                     diagonal[pos.x1] = elements.front();
+//                     elements.pop_front();
+//                 }
+//                 break;
+//             }
+//             if (pos.x1 == x1 && pos.x2 == x2) {
+//                 if (!elements.isEmpty()) {
+//                     pos.value2 = elements.front();
+//                     elements.pop_front();
+//                 }
+//                 break;
+//             }
+//             if (pos.x1 == x2 && pos.x2 == x1) {
+//                 if (!elements.isEmpty()) {
+//                     pos.value1 = elements.front();
+//                     elements.pop_front();
+//                 }
+
+//                 break;
+//             }
+//         }
+//     }
+
+//     // Обновляем позиции
+//     positions.clear();
+//     for (const auto& pos : all_positions) {
+//         if (pos.x1 != pos.x2) {
+//             positions.append(pos);
+//         }
+//     }
+
+
+//     qDebug() << "changeValues" << timer.elapsed() << "milliseconds";
+// }
+
 void SparseMatrix::changeValues(int b) {
-    QVector<Position> all_positions = positions;
+    QElapsedTimer timer;
+    timer.start();
+    QVector<QVariant> lesser_elements;
+    QVector<QVariant> bigger_elements;
+    QVector<QPair<int, int>> tempPairs;
+
+    // Combine processing of diagonal and positions elements to avoid copying
     for (int i = 0; i < diagonal.size(); ++i) {
         if (diagonal[i] != predominant) {
-            all_positions.append({diagonal[i], diagonal[i], i, i});
+            if (diagonal[i].toInt() <= b) {
+                lesser_elements.append(diagonal[i]);
+            } else {
+                bigger_elements.append(diagonal[i]);
+            }
+            tempPairs.append(QPair<int, int>(i, i));
         }
     }
 
-    QVector<QVariant> lesser_elements;
-    QVector<QVariant> bigger_elements;
-    for (const auto& pos : all_positions) {
-        if (pos.x1 == pos.x2) {
-            QVariant value = pos.value1;
-            if (value.toInt() <= b) {
-                lesser_elements.append(value);
-            } else {
-                bigger_elements.append(value);
-            }
+    for (const auto& pos : positions) {
+        if (pos.value1.toInt() <= b) {
+            lesser_elements.append(pos.value1);
         } else {
-            if (pos.value1.toInt() <= b) {
-                lesser_elements.append(pos.value1);
-            } else {
-                bigger_elements.append(pos.value1);
-            }
+            bigger_elements.append(pos.value1);
+        }
+        if (pos.x1 != pos.x2) {
             if (pos.value2.toInt() <= b) {
                 lesser_elements.append(pos.value2);
             } else {
                 bigger_elements.append(pos.value2);
             }
-        }
-    }
-
-
-
-    // Объединяем массивы больших и меньших элементов
-    QVector<QVariant> elements = bigger_elements;
-    elements.append(lesser_elements);
-
-    QVector<QPair<int, int>> tempPairs;
-
-    // Проходим по каждому элементу вектора positions
-    for (const Position& pos : all_positions) {
-        if(pos.x1 != pos.x2){
             tempPairs.append(QPair<int, int>(pos.x2, pos.x1));
             tempPairs.append(QPair<int, int>(pos.x1, pos.x2));
-        }else
+        } else {
             tempPairs.append(QPair<int, int>(pos.x1, pos.x2));
+        }
     }
 
+    // Combine and sort elements
+    QVector<QVariant> elements = bigger_elements + lesser_elements;
     std::sort(tempPairs.begin(), tempPairs.end());
 
-    for (const auto& pair : tempPairs) {
-        int x1 = pair.first;
-        int x2 = pair.second;
-
-        for (auto& pos : all_positions) {
-            if (pos.x1 == x1 && pos.x2 == x2 && x1 == x2) {
-                if (!elements.isEmpty()) {
-                    diagonal[pos.x1] = elements.front();
-                    elements.pop_front();
-                }
-                break;
-            }
-            if (pos.x1 == x1 && pos.x2 == x2) {
-                if (!elements.isEmpty()) {
-                    pos.value2 = elements.front();
-                    elements.pop_front();
-                }
-                break;
-            }
-            if (pos.x1 == x2 && pos.x2 == x1) {
-                if (!elements.isEmpty()) {
-                    pos.value1 = elements.front();
-                    elements.pop_front();
-                }
-
-                break;
-            }
+    // Use a QMap to store the elements for quick lookup and update
+    QMap<QPair<int, int>, QVariant> elementMap;
+    for (int i = 0; i < elements.size(); ++i) {
+        if (i < tempPairs.size()) {
+            elementMap[tempPairs[i]] = elements[i];
         }
     }
 
-    // Обновляем позиции
-    positions.clear();
-    for (const auto& pos : all_positions) {
+    // Update diagonal and positions
+    for (int i = 0; i < diagonal.size(); ++i) {
+        if (diagonal[i] != predominant && elementMap.contains(QPair<int, int>(i, i))) {
+            diagonal[i] = elementMap[QPair<int, int>(i, i)];
+        }
+    }
+
+    QVector<Position> updatedPositions;
+    for (auto& pos : positions) {
         if (pos.x1 != pos.x2) {
-            positions.append(pos);
+            if (elementMap.contains(QPair<int, int>(pos.x1, pos.x2))) {
+                pos.value2 = elementMap[QPair<int, int>(pos.x1, pos.x2)];
+            }
+            if (elementMap.contains(QPair<int, int>(pos.x2, pos.x1))) {
+                pos.value1 = elementMap[QPair<int, int>(pos.x2, pos.x1)];
+            }
+            updatedPositions.append(pos);
         }
     }
+
+    positions = updatedPositions;
+    qDebug() << "changeValues" << timer.elapsed() << "milliseconds";
 }
+
 

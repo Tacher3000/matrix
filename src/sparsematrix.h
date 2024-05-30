@@ -9,6 +9,7 @@
 #include <QTextStream>
 #include <QTextEdit>
 #include <algorithm>
+#include <QElapsedTimer>
 
 class SparseMatrix : public QObject {
     Q_OBJECT
