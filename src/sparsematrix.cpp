@@ -114,6 +114,7 @@ void SparseMatrix::makeFileOfMatrix(const QString& outputFilePath) const {
 
     QTextStream out(&file);
 
+
     out << predominant.toString() << "\n";
     for (const QVariant& el : diagonal) {
         out << el.toString() << " ";
@@ -334,8 +335,7 @@ void SparseMatrix::printMatrixToTextEdit(QTextEdit* textEdit, int head, int tail
 // }
 
 void SparseMatrix::changeValues(int b) {
-    QElapsedTimer timer;
-    timer.start();
+    auto start = std::chrono::high_resolution_clock::now();
     QVector<QVariant> lesser_elements;
     QVector<QVariant> bigger_elements;
     QVector<QPair<int, int>> tempPairs;
@@ -400,7 +400,11 @@ void SparseMatrix::changeValues(int b) {
     }
 
     positions = updatedPositions;
-    qDebug() << "changeValues" << timer.elapsed() << "milliseconds";
+    auto end = std::chrono::high_resolution_clock::now();
+
+    // Рассчитываем длительность выполнения задачи
+    std::chrono::duration<double, std::micro> duration = end - start;
+
+    // Выводим время выполнения в микросекундах
+    qDebug() << "Время выполнения: " << duration.count() << " микросекунд";
 }
-
-
