@@ -237,103 +237,6 @@ void SparseMatrix::printMatrixToTextEdit(QTextEdit* textEdit, int head, int tail
     textEdit->setPlainText(matrixOutput);
 }
 
-
-// void SparseMatrix::changeValues(int b) {
-
-//     QElapsedTimer timer;
-//     timer.start();
-//     QVector<Position> all_positions = positions;
-//     for (int i = 0; i < diagonal.size(); ++i) {
-//         if (diagonal[i] != predominant) {
-//             all_positions.append({diagonal[i], diagonal[i], i, i});
-//         }
-//     }
-
-//     QVector<QVariant> lesser_elements;
-//     QVector<QVariant> bigger_elements;
-//     for (const auto& pos : all_positions) {
-//         if (pos.x1 == pos.x2) {
-//             QVariant value = pos.value1;
-//             if (value.toInt() <= b) {
-//                 lesser_elements.append(value);
-//             } else {
-//                 bigger_elements.append(value);
-//             }
-//         } else {
-//             if (pos.value1.toInt() <= b) {
-//                 lesser_elements.append(pos.value1);
-//             } else {
-//                 bigger_elements.append(pos.value1);
-//             }
-//             if (pos.value2.toInt() <= b) {
-//                 lesser_elements.append(pos.value2);
-//             } else {
-//                 bigger_elements.append(pos.value2);
-//             }
-//         }
-//     }
-
-
-
-//     // Объединяем массивы больших и меньших элементов
-//     QVector<QVariant> elements = bigger_elements;
-//     elements.append(lesser_elements);
-
-//     QVector<QPair<int, int>> tempPairs;
-
-//     // Проходим по каждому элементу вектора positions
-//     for (const Position& pos : all_positions) {
-//         if(pos.x1 != pos.x2){
-//             tempPairs.append(QPair<int, int>(pos.x2, pos.x1));
-//             tempPairs.append(QPair<int, int>(pos.x1, pos.x2));
-//         }else
-//             tempPairs.append(QPair<int, int>(pos.x1, pos.x2));
-//     }
-
-//     std::sort(tempPairs.begin(), tempPairs.end());
-
-//     for (const auto& pair : tempPairs) {
-//         int x1 = pair.first;
-//         int x2 = pair.second;
-
-//         for (auto& pos : all_positions) {
-//             if (pos.x1 == x1 && pos.x2 == x2 && x1 == x2) {
-//                 if (!elements.isEmpty()) {
-//                     diagonal[pos.x1] = elements.front();
-//                     elements.pop_front();
-//                 }
-//                 break;
-//             }
-//             if (pos.x1 == x1 && pos.x2 == x2) {
-//                 if (!elements.isEmpty()) {
-//                     pos.value2 = elements.front();
-//                     elements.pop_front();
-//                 }
-//                 break;
-//             }
-//             if (pos.x1 == x2 && pos.x2 == x1) {
-//                 if (!elements.isEmpty()) {
-//                     pos.value1 = elements.front();
-//                     elements.pop_front();
-//                 }
-
-//                 break;
-//             }
-//         }
-//     }
-
-//     // Обновляем позиции
-//     positions.clear();
-//     for (const auto& pos : all_positions) {
-//         if (pos.x1 != pos.x2) {
-//             positions.append(pos);
-//         }
-//     }
-
-
-//     qDebug() << "changeValues" << timer.elapsed() << "milliseconds";
-// }
-
 void SparseMatrix::changeValues(int b) {
     auto start = std::chrono::high_resolution_clock::now();
     QVector<QVariant> lesser_elements;
@@ -402,9 +305,7 @@ void SparseMatrix::changeValues(int b) {
     positions = updatedPositions;
     auto end = std::chrono::high_resolution_clock::now();
 
-    // Рассчитываем длительность выполнения задачи
     std::chrono::duration<double, std::micro> duration = end - start;
 
-    // Выводим время выполнения в микросекундах
     qDebug() << "Время выполнения: " << duration.count() << " микросекунд";
 }

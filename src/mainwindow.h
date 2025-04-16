@@ -1,5 +1,3 @@
-// mainwindow.h
-
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
@@ -14,7 +12,6 @@
 #include <QFileDialog>
 #include <QCheckBox>
 #include "sparsematrix.h"
-// #include "test.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT

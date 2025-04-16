@@ -1,7 +1,4 @@
-// mainwindow.cpp
-
 #include "mainwindow.h"
-#include <_mingw_mac.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), _matrixDisplay(new QTextEdit(this)),
@@ -32,11 +29,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     QFrame *vline1 = new QFrame;
     vline1->setFrameShape(QFrame::VLine);
-    // vline1->setFrameShadow(QFrame::Sunken);
 
     QFrame *vline2 = new QFrame;
     vline2->setFrameShape(QFrame::VLine);
-    // vline2->setFrameShadow(QFrame::Sunken);
 
     QFrame *vline3 = new QFrame;
     vline3->setFrameShape(QFrame::VLine);
@@ -169,7 +164,6 @@ void MainWindow::print(){
         _matrix.printMatrixToTextEdit(_matrixDisplay, head, tail);
     if(_printKonsol->checkState())
         _matrix.printMatrix(head, tail);
-    // _matrix.printData();
 }
 
 
